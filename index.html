@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Contract</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            border-radius: 4px;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: hsl(111, 73%, 65%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .message {
+            margin-top: 20px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sign Contract</h1>
+
+        <!-- Text fields for additional information -->
+        <label for="companyName">Company Name:</label>
+        <input type="text" id="companyName" placeholder="Enter company name">
+
+        <label for="companyAddress">Company Address:</label>
+        <input type="text" id="companyAddress" placeholder="Enter company address">
+
+        <label for="farmerName">Farmer Name:</label>
+        <input type="text" id="farmerName" placeholder="Enter farmer name">
+
+        <label for="fatherName">Father's Name:</label>
+        <input type="text" id="fatherName" placeholder="Enter father's name">
+
+        <label for="village">Village:</label>
+        <input type="text" id="village" placeholder="Enter village">
+
+        <label for="district">District:</label>
+        <input type="text" id="district" placeholder="Enter district">
+
+        <label for="effectiveDate">Effective Date:</label>
+        <input type="date" id="effectiveDate">
+
+        <!-- <label for="contractTitle">Contract Title:</label> -->
+        <!-- <input type="text" id="contractTitle" placeholder="Enter contract title"> -->
+
+        <label for="contractDate">Contract Date:</label>
+        <input type="date" id="contractDate">
+        
+        <label for="croptype">Crop Name:</label>
+        <input type="text" id="croptype" placeholder="Enter crop name">
+
+        <label for="area">Area(in acres):</label>
+        <input type="text" id="area" placeholder="Enter the area">
+
+        <!-- Canvas for capturing the signature -->
+        <canvas id="signatureCanvas" width="400" height="200"></canvas>
+
+        <div class="button-container">
+            <button id="clearButton">Clear</button>
+            <button id="saveButton">Save Signature</button>
+            <button id="generatePDFButton">Generate PDF</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
+
+        document.getElementById('clearButton').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        document.getElementById('saveButton').addEventListener('click', async () => {
+            const signatureData = canvas.toDataURL('image/png');
+            
+            try {
+                const response = await fetch('/save-signature', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ signature: signatureData }),
+                });
+                
+                const result = await response.json();
+                document.getElementById('message').innerText = result.message;
+
+            } catch (err) {
+                console.error('Error saving signature:', err);
+            }
+        });
+
+        document.getElementById('generatePDFButton').addEventListener('click', async () => {
+            const signatureData = canvas.toDataURL('image/png');
+            const companyName = document.getElementById('companyName').value;
+            const companyAddress = document.getElementById('companyAddress').value;
+            const farmerName = document.getElementById('farmerName').value;
+            const fatherName = document.getElementById('fatherName').value;
+            const village = document.getElementById('village').value;
+            const district = document.getElementById('district').value;
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            // const contractTitle = document.getElementById('contractTitle').value;
+            const contractDate = document.getElementById('contractDate').value;
+            const croptype=document.getElementById('croptype').value;
+            const area=document.getElementById('area').value;
+            try {
+                const response = await fetch('/generate-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        signature: signatureData,
+                        companyName,
+                        companyAddress,
+                        farmerName,
+                        fatherName,
+                        village,
+                        district,
+                        effectiveDate,
+                        contractDate,
+                        // title: contractTitle
+                    }),
+                });
+                
+                const result = await response.json();
+                document.getElementById('message').innerText = result.message;
+
+            } catch (err) {
+                console.error('Error generating PDF:', err);
+            }
+        });
+    </script>
+</body>
+</html>
