@@ -125,13 +125,18 @@
         <div class="button-container">
             <button id="clearButton">Clear</button>
             <button id="saveButton">Save Signature</button>
-            <button id="generatePDFButton">Generate PDF</button>
+            <button id="generatePDFButton" onclick="gen()">Generate PDF</button>
         </div>
 
         <div id="message" class="message"></div>
     </div>
 
     <script>
+
+        function gen(){
+            alert("PDF Generated successfully");
+            window.location.href = "https://sih-project-ivory.vercel.app/agreement";
+        }
         const canvas = document.getElementById('signatureCanvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
@@ -177,46 +182,48 @@
             }
         });
 
-        document.getElementById('generatePDFButton').addEventListener('click', async () => {
-            const signatureData = canvas.toDataURL('image/png');
-            const companyName = document.getElementById('companyName').value;
-            const companyAddress = document.getElementById('companyAddress').value;
-            const farmerName = document.getElementById('farmerName').value;
-            const fatherName = document.getElementById('fatherName').value;
-            const village = document.getElementById('village').value;
-            const district = document.getElementById('district').value;
-            const effectiveDate = document.getElementById('effectiveDate').value;
-            // const contractTitle = document.getElementById('contractTitle').value;
-            const contractDate = document.getElementById('contractDate').value;
-            const croptype=document.getElementById('croptype').value;
-            const area=document.getElementById('area').value;
-            try {
-                const response = await fetch('/generate-pdf', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        signature: signatureData,
-                        companyName,
-                        companyAddress,
-                        farmerName,
-                        fatherName,
-                        village,
-                        district,
-                        effectiveDate,
-                        contractDate,
-                        // title: contractTitle
-                    }),
-                });
-                
-                const result = await response.json();
-                document.getElementById('message').innerText = "PDF Generated successfully";
 
-            } catch (err) {
-                console.error('Error generating PDF:', err);
-            }
-        });
+
+        // document.getElementById('generatePDFButton').addEventListener('click', async () => {
+        //     const signatureData = canvas.toDataURL('image/png');
+        //     const companyName = document.getElementById('companyName').value;
+        //     const companyAddress = document.getElementById('companyAddress').value;
+        //     const farmerName = document.getElementById('farmerName').value;
+        //     const fatherName = document.getElementById('fatherName').value;
+        //     const village = document.getElementById('village').value;
+        //     const district = document.getElementById('district').value;
+        //     const effectiveDate = document.getElementById('effectiveDate').value;
+        //     // const contractTitle = document.getElementById('contractTitle').value;
+        //     const contractDate = document.getElementById('contractDate').value;
+        //     const croptype=document.getElementById('croptype').value;
+        //     const area=document.getElementById('area').value;
+        //     try {
+        //         const response = await fetch('/generate-pdf', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             },
+        //             body: JSON.stringify({
+        //                 signature: signatureData,
+        //                 companyName,
+        //                 companyAddress,
+        //                 farmerName,
+        //                 fatherName,
+        //                 village,
+        //                 district,
+        //                 effectiveDate,
+        //                 contractDate,
+        //                 // title: contractTitle
+        //             }),
+        //         });
+                
+        //         const result = await response.json();
+        //         document.getElementById('message').innerText = "PDF Generated successfully";
+
+        //      }catch (err) {
+        //         console.error('Error generating PDF:', err);
+        //     }
+        // });
     </script>
 </body>
 </html>
