@@ -211,7 +211,7 @@
                 });
                 
                 const result = await response.json();
-                document.getElementById('message').innerText = result.message;
+                document.getElementById('message').innerText = "PDF Generated successfully";
 
             } catch (err) {
                 console.error('Error generating PDF:', err);
